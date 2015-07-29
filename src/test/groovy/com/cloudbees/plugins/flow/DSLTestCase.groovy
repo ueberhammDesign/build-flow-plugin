@@ -129,7 +129,7 @@ abstract class DSLTestCase extends HudsonTestCase {
     }
 
     def assertRan = { job ->
-        assert 0 > job.builds.size()
+        assert 0 < job.builds.size()
     }
 
     def assertAllSuccess = { jobs ->

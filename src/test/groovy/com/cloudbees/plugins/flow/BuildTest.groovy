@@ -233,7 +233,7 @@ class BuildTest extends DSLTestCase {
         """)
         assertAllSuccess(jobs)
         assertFailure(willFail)
-        assertRan(notRan)
+        assertDidNotRun(notRan)
         assert FAILURE == flow.result
         println flow.jobsGraph.edgeSet()
     }
