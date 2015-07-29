@@ -456,7 +456,15 @@ public class FlowDelegate {
             pool.awaitTermination(1, TimeUnit.DAYS)
             current_state.lastCompleted =lastCompleted
         } finally {
-            flowRun.state = current_state
+            def current_result = current_state.result
+            if(current_result.isWorseOrEqualTo(flowRun.result)) {
+                flowRun.state = current_state
+            } else {
+                def flowRunResult = flowRun.result
+                flowRun.state = current_state
+                flowRun.result = flowRunResult
+            }
+
             --indent
             println("}")
         }

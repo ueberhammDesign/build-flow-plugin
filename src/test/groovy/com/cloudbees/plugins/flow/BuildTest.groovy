@@ -250,7 +250,7 @@ class BuildTest extends DSLTestCase {
             build("ran")
         """)
         assertAllSuccess(jobs)
-        assertFailure(willBeUnstable)
+        assertUnstable(willBeUnstable)
         assertRan(ran)
         assert UNSTABLE == flow.result
         println flow.jobsGraph.edgeSet()
