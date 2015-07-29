@@ -26,27 +26,14 @@
 package com.cloudbees.plugins.flow
 
 import com.cloudbees.plugin.flow.UnstableBuilder
-import com.cloudbees.plugins.flow.FlowDSL
 import hudson.model.Result
-import org.jvnet.hudson.test.FailureBuilder
 import org.jvnet.hudson.test.HudsonTestCase
 import hudson.model.AbstractBuild
 import hudson.model.ParametersAction
-import com.cloudbees.plugins.flow.BuildFlow
 import jenkins.model.Jenkins
 import static hudson.model.Result.SUCCESS
-import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
 import static hudson.model.Result.FAILURE
-import java.util.logging.Logger
-import java.util.logging.Level
-import java.util.logging.Handler
-import java.util.logging.ConsoleHandler
-import com.cloudbees.plugins.flow.JobInvocation
-import com.cloudbees.plugins.flow.FlowDelegate
-import hudson.Launcher
-import hudson.model.BuildListener
-import hudson.tasks.Builder
+
 import com.cloudbees.plugin.flow.ConfigurableFailureBuilder
 import com.cloudbees.plugin.flow.BlockingBuilder
 import hudson.model.Job
@@ -91,6 +78,30 @@ abstract class DSLTestCase extends HudsonTestCase {
         return flow.scheduleBuild2(0).get()
     }
 
+    def runWithAbortWhenWorseThanSuccess = { script ->
+        BuildFlow flow = new BuildFlow(Jenkins.instance, getName())
+        flow.dsl = script
+        flow.abortWhenWorseThan = SUCCESS.toString()
+        flow.useAbortWhenWorseThan = true
+        return flow.scheduleBuild2(0).get()
+    }
+
+    def runWithAbortWhenWorseThanUnstable = { script ->
+        BuildFlow flow = new BuildFlow(Jenkins.instance, getName())
+        flow.dsl = script
+        flow.abortWhenWorseThan = UNSTABLE.toString()
+        flow.useAbortWhenWorseThan = true
+        return flow.scheduleBuild2(0).get()
+    }
+
+    def runWithAbortWhenWorseThanFailure = { script ->
+        BuildFlow flow = new BuildFlow(Jenkins.instance, getName())
+        flow.dsl = script
+        flow.abortWhenWorseThan = FAILURE.toString()
+        flow.useAbortWhenWorseThan = true;
+        return flow.scheduleBuild2(0).get()
+    }
+
     def runWithWorkspace = { script ->
         BuildFlow flow = new BuildFlow(Jenkins.instance, getName())
         flow.dsl = script
@@ -118,6 +129,10 @@ abstract class DSLTestCase extends HudsonTestCase {
 
     def assertDidNotRun = { job ->
         assert 0 == job.builds.size()
+    }
+
+    def assertRan = { job ->
+        assert 0 < job.builds.size()
     }
 
     def assertAllSuccess = { jobs ->
