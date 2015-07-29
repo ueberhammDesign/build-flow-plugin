@@ -26,7 +26,7 @@ package com.cloudbees.plugins.flow;
 
 import static hudson.model.Result.FAILURE;
 import static hudson.model.Result.SUCCESS;
-import hudson.Util;
+
 import hudson.model.Action;
 import hudson.model.Build;
 import hudson.model.BuildListener;
@@ -35,9 +35,6 @@ import hudson.model.Run;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -60,8 +57,8 @@ public class FlowRun extends Build<BuildFlow, FlowRun> {
     
     private String dsl;
     private String dslFile;
-
     private boolean buildNeedsWorkspace;
+    private String abortWhenWorseThan;
 
     private JobInvocation.Start startJob;
 
@@ -91,6 +88,7 @@ public class FlowRun extends Build<BuildFlow, FlowRun> {
         this.dsl = job.getDsl();
         this.dslFile = job.getDslFile();
         this.buildNeedsWorkspace = job.getBuildNeedsWorkspace();
+        this.abortWhenWorseThan = job.getAbortWhenWorseThan() != null ? job.getAbortWhenWorseThan() : SUCCESS.toString();
         startJob.buildStarted(this);
         jobsGraph.addVertex(startJob);
         state.set(new FlowState(SUCCESS, startJob));
@@ -154,6 +152,10 @@ public class FlowRun extends Build<BuildFlow, FlowRun> {
         } else {
             execute(new FlyweightTaskRunnerImpl(dsl));
         }
+    }
+
+    public String getAbortWhenWorseThan() {
+        return abortWhenWorseThan;
     }
 
     protected class BuildWithWorkspaceRunnerImpl extends AbstractRunner {
