@@ -25,18 +25,12 @@
 
 package com.cloudbees.plugins.flow
 
-import hudson.model.Result
 import org.jvnet.hudson.test.Bug
 
 import static hudson.model.Result.SUCCESS
 import static hudson.model.Result.FAILURE
 import hudson.model.Job
-import hudson.model.Action
-import hudson.model.ParametersAction
-import hudson.model.ParameterValue
-import hudson.model.StringParameterValue
 import hudson.model.ParametersDefinitionProperty
-import hudson.model.ParameterDefinition
 import hudson.model.StringParameterDefinition
 import hudson.model.FreeStyleProject
 
@@ -133,13 +127,13 @@ class BuildTest extends DSLTestCase {
     public void testSequentialBuildsWithFailureByDefault() {
         def jobs = createJobs(["job1", "job2", "job3"])
         def willFail = createFailJob("willFail")
-        def notRan = createJob("notRan")
+        def notRan = createJob("willNotRun")
         def flow = run("""
             build("job1")
             build("job2")
             build("job3")
             build("willFail")
-            build("notRan")
+            build("willNotRun")
         """)
         assertAllSuccess(jobs)
         assertFailure(willFail)
@@ -151,13 +145,13 @@ class BuildTest extends DSLTestCase {
     public void testSequentialBuildsWithUnstableByDefault() {
         def jobs = createJobs(["job1", "job2", "job3"])
         def willBeUnstable = createUnstableJob("willBeUnstable")
-        def notRan = createJob("notRan")
+        def notRan = createJob("willNotRun")
         def flow = run("""
             build("job1")
             build("job2")
             build("job3")
             build("willBeUnstable")
-            build("notRan")
+            build("willNotRun")
         """)
         assertAllSuccess(jobs)
         assertUnstable(willBeUnstable)
@@ -169,13 +163,13 @@ class BuildTest extends DSLTestCase {
     public void testSequentialBuildsWithUnstableBySucess() {
         def jobs = createJobs(["job1", "job2", "job3"])
         def willBeUnstable = createUnstableJob("willBeUnstable")
-        def notRan = createJob("notRan")
-        def flow = runWithAbortBySuccess("""
+        def notRan = createJob("willNotRun")
+        def flow = runWithAbortWhenWorseThanSuccess("""
             build("job1")
             build("job2")
             build("job3")
             build("willBeUnstable")
-            build("notRan")
+            build("willNotRun")
         """)
         assertAllSuccess(jobs)
         assertUnstable(willBeUnstable)
@@ -188,12 +182,12 @@ class BuildTest extends DSLTestCase {
         def jobs = createJobs(["job1", "job2", "job3"])
         def willFail = createFailJob("willFail")
         def notRan = createJob("notRan")
-        def flow = runWithAbortBySuccess("""
+        def flow = runWithAbortWhenWorseThanSuccess("""
             build("job1")
             build("job2")
             build("job3")
             build("willFail")
-            build("notRan")
+            build("willNotRun")
         """)
         assertAllSuccess(jobs)
         assertFailure(willFail)
@@ -205,13 +199,13 @@ class BuildTest extends DSLTestCase {
     public void testSequentialBuildsWithUnstableByUnstable() {
         def jobs = createJobs(["job1", "job2", "job3"])
         def willBeUnstable = createUnstableJob("willBeUnstable")
-        def ran = createJob("ran")
-        def flow = runWithAbortByUnstable("""
+        def ran = createJob("willRun")
+        def flow = runWithAbortWhenWorseThanUnstable("""
             build("job1")
             build("job2")
             build("job3")
             build("willBeUnstable")
-            build("ran")
+            build("willRun")
         """)
         assertAllSuccess(jobs)
         assertUnstable(willBeUnstable)
@@ -223,13 +217,13 @@ class BuildTest extends DSLTestCase {
     public void testSequentialBuildsWithFailureByUnstable() {
         def jobs = createJobs(["job1", "job2", "job3"])
         def willFail = createFailJob("willFail")
-        def notRan = createJob("notRan")
-        def flow = runWithAbortByUnstable("""
+        def notRan = createJob("willNotRun")
+        def flow = runWithAbortWhenWorseThanUnstable("""
             build("job1")
             build("job2")
             build("job3")
             build("willFail")
-            build("notRan")
+            build("willNotRun")
         """)
         assertAllSuccess(jobs)
         assertFailure(willFail)
@@ -241,13 +235,13 @@ class BuildTest extends DSLTestCase {
     public void testSequentialBuildsWithUnstableByFailure() {
         def jobs = createJobs(["job1", "job2", "job3"])
         def willBeUnstable = createUnstableJob("willBeUnstable")
-        def ran = createJob("ran")
-        def flow = runWithAbortByFailure("""
+        def ran = createJob("willRun")
+        def flow = runWithAbortWhenWorseThanFailure("""
             build("job1")
             build("job2")
             build("job3")
             build("willBeUnstable")
-            build("ran")
+            build("willRun")
         """)
         assertAllSuccess(jobs)
         assertUnstable(willBeUnstable)
@@ -259,13 +253,13 @@ class BuildTest extends DSLTestCase {
     public void testSequentialBuildsWithFailureByFailure() {
         def jobs = createJobs(["job1", "job2", "job3"])
         def willFail = createFailJob("willFail")
-        def ran = createJob("ran")
-        def flow = runWithAbortByFailure("""
+        def ran = createJob("willRun")
+        def flow = runWithAbortWhenWorseThanFailure("""
             build("job1")
             build("job2")
             build("job3")
             build("willFail")
-            build("ran")
+            build("willRun")
         """)
         assertAllSuccess(jobs)
         assertFailure(willFail)

@@ -78,21 +78,21 @@ abstract class DSLTestCase extends HudsonTestCase {
         return flow.scheduleBuild2(0).get()
     }
 
-    def runWithAbortBySuccess = { script ->
+    def runWithAbortWhenWorseThanSuccess = { script ->
         BuildFlow flow = new BuildFlow(Jenkins.instance, getName())
         flow.dsl = script
         flow.abortWhenWorseThan = SUCCESS.toString()
         return flow.scheduleBuild2(0).get()
     }
 
-    def runWithAbortByUnstable = { script ->
+    def runWithAbortWhenWorseThanUnstable = { script ->
         BuildFlow flow = new BuildFlow(Jenkins.instance, getName())
         flow.dsl = script
         flow.abortWhenWorseThan = UNSTABLE.toString()
         return flow.scheduleBuild2(0).get()
     }
 
-    def runWithAbortByFailure = { script ->
+    def runWithAbortWhenWorseThanFailure = { script ->
         BuildFlow flow = new BuildFlow(Jenkins.instance, getName())
         flow.dsl = script
         flow.abortWhenWorseThan = FAILURE.toString()

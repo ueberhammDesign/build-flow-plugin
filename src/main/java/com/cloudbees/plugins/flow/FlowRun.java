@@ -58,6 +58,7 @@ public class FlowRun extends Build<BuildFlow, FlowRun> {
     private String dsl;
     private String dslFile;
     private boolean buildNeedsWorkspace;
+    private boolean useAbortWhenWorseThan;
     private String abortWhenWorseThan;
 
     private JobInvocation.Start startJob;
@@ -88,7 +89,8 @@ public class FlowRun extends Build<BuildFlow, FlowRun> {
         this.dsl = job.getDsl();
         this.dslFile = job.getDslFile();
         this.buildNeedsWorkspace = job.getBuildNeedsWorkspace();
-        this.abortWhenWorseThan = job.getAbortWhenWorseThan() != null ? job.getAbortWhenWorseThan() : SUCCESS.toString();
+        this.useAbortWhenWorseThan = job.isUseAbortWhenWorseThan();
+        this.abortWhenWorseThan = (useAbortWhenWorseThan && job.getAbortWhenWorseThan() != null) ? job.getAbortWhenWorseThan() : SUCCESS.toString();
         startJob.buildStarted(this);
         jobsGraph.addVertex(startJob);
         state.set(new FlowState(SUCCESS, startJob));
@@ -101,7 +103,9 @@ public class FlowRun extends Build<BuildFlow, FlowRun> {
 
     /* package */ Run waitForCompletion(JobInvocation job) throws ExecutionException, InterruptedException {
         job.waitForCompletion();
-        if(getState().getResult().isBetterOrEqualTo(job.getResult())) {
+        if(useAbortWhenWorseThan && getState().getResult().isBetterOrEqualTo(job.getResult())) {
+            getState().setResult(job.getResult());
+        } else if(!useAbortWhenWorseThan) {
             getState().setResult(job.getResult());
         }
         return job.getBuild();
@@ -109,7 +113,9 @@ public class FlowRun extends Build<BuildFlow, FlowRun> {
 
     /* package */ Run waitForFinalization(JobInvocation job) throws ExecutionException, InterruptedException {
         job.waitForFinalization();
-        if(getState().getResult().isBetterOrEqualTo(job.getResult())) {
+        if(useAbortWhenWorseThan && getState().getResult().isBetterOrEqualTo(job.getResult())) {
+            getState().setResult(job.getResult());
+        } else if(!useAbortWhenWorseThan) {
             getState().setResult(job.getResult());
         }
         return job.getBuild();
