@@ -103,7 +103,7 @@ public class FlowRun extends Build<BuildFlow, FlowRun> {
 
     /* package */ Run waitForCompletion(JobInvocation job) throws ExecutionException, InterruptedException {
         job.waitForCompletion();
-        if(useAbortWhenWorseThan && getState().getResult().isBetterOrEqualTo(job.getResult())) {
+        if(useCustomAbortAndStateResultIsBetterOrEqualJobResult(job)) {
             getState().setResult(job.getResult());
         } else if(!useAbortWhenWorseThan) {
             getState().setResult(job.getResult());
@@ -113,12 +113,16 @@ public class FlowRun extends Build<BuildFlow, FlowRun> {
 
     /* package */ Run waitForFinalization(JobInvocation job) throws ExecutionException, InterruptedException {
         job.waitForFinalization();
-        if(useAbortWhenWorseThan && getState().getResult().isBetterOrEqualTo(job.getResult())) {
+        if(useCustomAbortAndStateResultIsBetterOrEqualJobResult(job)) {
             getState().setResult(job.getResult());
         } else if(!useAbortWhenWorseThan) {
             getState().setResult(job.getResult());
         }
         return job.getBuild();
+    }
+
+    private boolean useCustomAbortAndStateResultIsBetterOrEqualJobResult(JobInvocation job) throws ExecutionException, InterruptedException {
+        return useAbortWhenWorseThan && getState().getResult().isBetterOrEqualTo(job.getResult());
     }
 
     /* package */ FlowState getState() {
