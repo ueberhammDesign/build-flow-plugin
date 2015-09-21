@@ -203,7 +203,7 @@ public class FlowDelegate {
      */
     private void statusCheck() {
         if (flowRun.state.result.isWorseThan(Result.fromString(flowRun.getAbortWhenWorseThan()))) {
-            println("Abort execution, because on of the last builds is worse than " + flowRun.getAbortWhenWorseThan())
+            println("Abort execution, because one of the last builds is worse than " + flowRun.getAbortWhenWorseThan())
             fail()
         }
     }
